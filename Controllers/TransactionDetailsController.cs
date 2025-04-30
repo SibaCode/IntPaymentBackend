@@ -68,6 +68,28 @@ namespace IntPaymentAPI.Controllers
 
             return NoContent();
         }
+[HttpPut("verify/{id}")]
+public async Task<IActionResult> VerifyTransaction(int id)
+{
+    var transaction = await _context.TransactionDetails.FindAsync(id);
+    if (transaction == null)
+    {
+        return NotFound();
+    }
+
+    // Check if the transaction has already been verified
+    if (transaction.Status == "Verified")
+    {
+        return BadRequest("Transaction already verified.");
+    }
+
+    // Update the status to Verified
+    transaction.Status = "Verified";
+    _context.TransactionDetails.Update(transaction);
+    await _context.SaveChangesAsync();
+
+    return Ok(transaction);
+}
 
         // DELETE: api/TransactionDetails/5
         [HttpDelete("{id}")]
