@@ -1,21 +1,18 @@
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IntPaymentAPI.Models
 {
-    public class Transaction
+   public class Payment
 {
     public int Id { get; set; }
     public decimal Amount { get; set; }
     public string Currency { get; set; }
     public string Provider { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    // Foreign key
+    public string Status { get; set; }
+    public DateTime Date { get; set; }
     public int CustomerId { get; set; }
 
-    // Navigation property
     public Customer Customer { get; set; }
 }
-
 }

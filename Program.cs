@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Set specific URL (ensure this matches your desired port)
 builder.WebHost.UseUrls("https://localhost:7150");
 
-// Register the DbContext for Identity
+// Register the DbContext for Identity and Payments (with correct connection string)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Make sure DefaultConnection is in your appsettings.json
 
-// Register Controllers
+// Register Controllers (for all API routes)
 builder.Services.AddControllers();
 
 // Add Swagger (only in development environment)
@@ -45,8 +45,11 @@ builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection(
 builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 builder.Services.AddInMemoryRateLimiting(); // Ensure this is set up correctly
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configure Identity for authentication (if needed)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
@@ -61,11 +64,12 @@ if (app.Environment.IsDevelopment())
 }
 
 // Middleware pipeline
-app.UseIpRateLimiting();
+app.UseIpRateLimiting(); // Rate limiting middleware
 app.UseHttpsRedirection(); // Enforce HTTPS
 app.UseRouting();
 app.UseAuthorization();
 
+// Ensure that Identity is enabled if you want authentication
 app.MapControllers(); // Map the controllers to endpoints
 
 app.Run();  // Start the application

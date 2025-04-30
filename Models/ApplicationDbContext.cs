@@ -10,6 +10,9 @@ namespace IntPaymentAPI
         }
 
         public DbSet<Transaction> Transactions { get; set; }
+                public DbSet<Payment> Payments { get; set; }
+
+    public DbSet<TransactionDetails> TransactionDetails { get; set; }
         public DbSet<Customer> Customers { get; set; }  // Add this line
         public DbSet<Employee> Employees { get; set; } 
         // Override OnModelCreating if needed
