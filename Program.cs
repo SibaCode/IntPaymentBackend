@@ -6,34 +6,33 @@ using IntPaymentAPI; // This is required to access ApplicationDbContext
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Set specific URL
+// Set specific URL (ensure this matches your desired port)
 builder.WebHost.UseUrls("https://localhost:7150");
 
-// // Register the DbContext for Identity
-// builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Register the DbContext for Identity
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Use your connection string here
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Make sure DefaultConnection is in your appsettings.json
 
 // Register Controllers
 builder.Services.AddControllers();
 
-// Add Swagger
+// Add Swagger (only in development environment)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS - Define a policy for your React App and "AllowAll" policy
+// Add CORS - Define both the "AllowAll" and "AllowReactApp" policies
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+    // Policy to allow all origins, methods, and headers (for local development)
+    options.AddPolicy("AllowAll", policy =>
+        policy
+            .AllowAnyOrigin()   // Allow any origin
+            .AllowAnyMethod()   // Allow any HTTP method
+            .AllowAnyHeader()); // Allow any header
 
-    // Example of a more restrictive CORS policy for your React App
-    options.AddPolicy("AllowReactApp",
-        policy => policy
+    // Policy to restrict CORS to only your React app (for production)
+    options.AddPolicy("AllowReactApp", policy =>
+        policy
             .WithOrigins("http://localhost:3000") // React App URL
             .AllowAnyMethod()
             .AllowAnyHeader());
@@ -45,30 +44,14 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
 builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-builder.Services.AddInMemoryRateLimiting(); // Add this line
-
-// // Add Identity services
-// builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-// {
-//     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-//     options.Lockout.MaxFailedAccessAttempts = 5;
-//     options.Lockout.AllowedForNewUsers = true;
-
-//     options.Password.RequireDigit = true;
-//     options.Password.RequiredLength = 6;
-//     options.Password.RequireLowercase = true;
-//     options.Password.RequireNonAlphanumeric = false;
-//     options.Password.RequireUppercase = true;
-//     options.Password.RequiredUniqueChars = 1;
-// })
-// .AddEntityFrameworkStores<ApplicationDbContext>()
-// .AddDefaultTokenProviders();
+builder.Services.AddInMemoryRateLimiting(); // Ensure this is set up correctly
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
 // Use CORS policies
-app.UseCors("AllowAll");
-app.UseCors("AllowReactApp");  // Add this line to apply the CORS policy for the React app
+app.UseCors(builder.Environment.IsDevelopment() ? "AllowAll" : "AllowReactApp");  // Apply appropriate CORS policy
 
 // Use Swagger only in dev
 if (app.Environment.IsDevelopment())
@@ -79,11 +62,10 @@ if (app.Environment.IsDevelopment())
 
 // Middleware pipeline
 app.UseIpRateLimiting();
-app.UseHttpsRedirection();
+app.UseHttpsRedirection(); // Enforce HTTPS
 app.UseRouting();
-
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers(); // Map the controllers to endpoints
 
-app.Run();
+app.Run();  // Start the application

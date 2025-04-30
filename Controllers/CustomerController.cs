@@ -21,41 +21,30 @@ private readonly ILogger<CustomersController> _logger;
             _context = context;
         }
 
-      [HttpPost("Register")]
-public async Task<IActionResult> Register(RegisterModel model)
+   [HttpPost("Register")]
+public async Task<ActionResult<Customer>> Register(RegisterModel model)
 {
     if (model == null)
     {
         return BadRequest("Invalid customer data.");
     }
 
+    // Hash the password before saving
     var passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
     var customer = new Customer
     {
         FullName = model.FullName,
-        IDNumber = model.IDNumber,
         AccountNumber = model.AccountNumber,
-        PasswordHash = passwordHash
-        // No Role property needed in DB
+        PasswordHash = passwordHash ,
+        IDNumber = model.IDNumber, // ✅ This is required
+// Store the hashed password
     };
 
     _context.Customers.Add(customer);
     await _context.SaveChangesAsync();
 
-    var response = new
-    {
-        customer = new
-        {
-            id = customer.Id,
-            fullName = customer.FullName,
-            accountNumber = customer.AccountNumber,
-            role = "customer"
-        },
-        message = "Customer registered successfully"
-    };
-
-    return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, response);
+    return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
 }
 
         // POST: api/Customers/login

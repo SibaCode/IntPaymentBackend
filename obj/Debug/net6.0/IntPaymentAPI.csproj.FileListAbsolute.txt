@@ -63,3 +63,11 @@
 /home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/obj/Debug/net6.0/IntPaymentAPI.pdb
 /home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/obj/Debug/net6.0/IntPaymentAPI.genruntimeconfig.cache
 /home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/obj/Debug/net6.0/ref/IntPaymentAPI.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/Microsoft.Extensions.Configuration.Abstractions.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/Microsoft.Extensions.FileProviders.Abstractions.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/Microsoft.Extensions.Options.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/Microsoft.Extensions.Primitives.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/System.Diagnostics.DiagnosticSource.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/System.Text.Encodings.Web.dll
+/home/sibahle/Desktop/Rosebank 2025/IntPaymentAPI/bin/Debug/net6.0/runtimes/browser/lib/net6.0/System.Text.Encodings.Web.dll

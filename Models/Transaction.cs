@@ -1,20 +1,30 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace IntPaymentAPI.Models
 {
-   public class Transaction
-{
-    public int Id { get; set; }
-    public decimal Amount { get; set; }
-    public string Currency { get; set; }
-    public string Provider { get; set; }
-    public string Status { get; set; } = "Pending";
-    public string AccountNumber { get; set; }
-    public string SwiftCode { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public class Transaction
+    {
+        public int Id { get; set; }
 
-    // Foreign Key to Customer
-    public int CustomerId { get; set; }
+        [Required]
+        public decimal Amount { get; set; }
 
-    public Customer Customer { get; set; } // Navigation Property
-}
+        [Required]
+        public string Currency { get; set; }
 
+        [Required]
+        public string Provider { get; set; }
+
+        public string Status { get; set; } = "Pending";
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public int CustomerId { get; set; }
+
+
+        [ForeignKey("CustomerId")]
+        public Customer Customer { get; set; }  // ❌ Do NOT add [Required] here
+    }
 }

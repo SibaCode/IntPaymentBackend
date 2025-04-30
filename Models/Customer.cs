@@ -6,6 +6,8 @@ namespace IntPaymentAPI.Models
         public string FullName { get; set; }
         public string IDNumber { get; set; } // National ID number
         public string AccountNumber { get; set; }
-        public string PasswordHash { get; set; } // Ensure this is hashed and salted in production
+        public string PasswordHash { get; set; } 
+        public ICollection<Transaction> Transactions { get; set; }
+// Ensure this is hashed and salted in production
     }
 }
