@@ -17,38 +17,54 @@ namespace IntPaymentAPI.Controllers
         {
             _context = context;
         }
+ [HttpPost]
+public async Task<ActionResult<Employee>> CreateEmployee(Employee employee)
+{
+    // Remove Id before adding the employee, so that SQL Server can auto-generate it
+    employee.Id = 0; // Reset the Id if you're manually setting it (but you shouldn't need this step)
 
+    _context.Employees.Add(employee);
+    await _context.SaveChangesAsync();
 
-[HttpPost("login")]
+    return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, employee);
+}
+       [HttpPost("login")]
 public async Task<IActionResult> Login([FromBody] EmployeeLoginRequest loginRequest)
 {
-    // Check if username and password are provided
+    // Validate request parameters
     if (string.IsNullOrEmpty(loginRequest.Username) || string.IsNullOrEmpty(loginRequest.Password))
     {
         return BadRequest(new { message = "Username and password are required." });
     }
 
-    // Fetch the employee from the database using the username
+    // Find employee by username
     var employee = await _context.Employees
         .FirstOrDefaultAsync(e => e.Username == loginRequest.Username);
 
+    // Check if the employee exists
     if (employee == null)
     {
         return Unauthorized(new { message = "Invalid credentials" });
     }
 
     // Verify the password using BCrypt (hash comparison)
-    var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginRequest.Password, employee.PasswordHash);
-
-    if (!isPasswordValid)
+    try
     {
-        return Unauthorized(new { message = "Invalid credentials" });
+        var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginRequest.Password, employee.PasswordHash);
+        if (!isPasswordValid)
+        {
+            return Unauthorized(new { message = "Invalid credentials" });
+        }
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "Error verifying password", details = ex.Message });
     }
 
-    // Generate a mock token for now (in production, use JWT or another method)
-    var token = "mock-token"; // Replace this with a real token generation method
+    // Generate mock token (you would replace this with actual token logic)
+    var token = "mock-token";
 
-    // Return a successful response with employee data and token
+    // Return the employee data and token
     return Ok(new
     {
         employee = new
@@ -57,14 +73,9 @@ public async Task<IActionResult> Login([FromBody] EmployeeLoginRequest loginRequ
             username = employee.Username,
             role = "employee"
         },
-        token = token // This would be replaced by a real token in production
+        token = token
     });
 }
-
-        private bool VerifyPasswordHash(string password, string storedHash)
-        {
-            return BCrypt.Net.BCrypt.Verify(password, storedHash);
-        }
 
         // ===== GET ALL EMPLOYEES =====
         [HttpGet]
@@ -85,16 +96,7 @@ public async Task<IActionResult> Login([FromBody] EmployeeLoginRequest loginRequ
             return employee;
         }
 
-        // ===== CREATE NEW EMPLOYEE =====
-        [HttpPost]
-        public async Task<ActionResult<Employee>> CreateEmployee(Employee employee)
-        {
-            _context.Employees.Add(employee);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, employee);
-        }
-
+   
         // ===== UPDATE EMPLOYEE =====
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEmployee(int id, Employee employee)
